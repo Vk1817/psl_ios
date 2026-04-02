@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prime By Allrounder</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.ui.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/controls.min.css">
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  background: #000;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  font-family: system-ui;
+}
+
+.shaka-video-container {
+  position: absolute;
+  inset: 0;
+}
+
+video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+
+/* 🔹 Tap to Play Overlay */
+#tapOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  cursor: pointer;
+}
+
+#tapBtn {
+  padding: 15px 30px;
+  font-size: 18px;
+  border-radius: 30px;
+  border: none;
+  background: #ff0066;
+  color: #fff;
+  font-weight: bold;
+}
+
+/* Remove loader */
+.shaka-spinner-container,
+.shaka-spinner {
+  display: none !important;
+}
+</style>
+</head>
+
+<body>
+
+<div class="shaka-video-container" data-shaka-player>
+
+  <!-- 🔹 Tap to Play UI -->
+  <div id="tapOverlay">
+    <button id="tapBtn">▶ Tap to Play Live</button>
+  </div>
+
+  <video playsinline></video>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+
+  shaka.polyfill.installAll();
+
+  if (!shaka.Player.isBrowserSupported()) {
+    alert("Browser not supported");
+    return;
+  }
+
+  const video = document.querySelector('video');
+  const player = new shaka.Player(video);
+
+  const container = document.querySelector('.shaka-video-container');
+  const ui = new shaka.ui.Overlay(player, container, video);
+
+  ui.configure({
+    controlPanelElements: [
+      'play_pause','time_and_duration','mute','volume',
+      'spacer','quality','fullscreen'
+    ]
+  });
+
+  // 🔹 STREAM LINK
+  const streamUrl = "https://pslurdu.bigbaat.app/out/v1/0ef369b90c7b4025b76621e46ee5fb70/index_1.m3u8";
+
+  player.configure({
+    streaming: {
+      bufferingGoal: 20,
+      rebufferingGoal: 2,
+      bufferBehind: 15,
+      lowLatencyMode: true
+    }
+  });
+
+  await player.load(streamUrl);
+
+  const overlay = document.getElementById("tapOverlay");
+
+  // 🔹 First Click Ad Logic
+  let firstClick = true;
+
+  overlay.addEventListener("click", async () => {
+
+    if (firstClick) {
+      firstClick = false;
+
+      // 👉 OPEN AD LINK HERE
+      window.open("https://offstump.com", "_blank");
+    }
+
+    overlay.style.display = "none";
+
+    try {
+      video.muted = false;
+      await video.play();
+    } catch (e) {
+      console.log("Play error:", e);
+    }
+
+  });
+
+});
+</script>
+
+</body>
+</html>
